@@ -1,146 +1,220 @@
-# Simulador de Computadora - Universidad de Caldas
+# Simulador de Computadora
+### Universidad de Caldas - Arquitectura de Computadoras
 
-Un simulador educativo de arquitectura de computadora con interfaz gráfica desarrollado en Python usando Tkinter. Este proyecto implementa los componentes fundamentales de una computadora y permite visualizar el ciclo de ejecución de instrucciones.
+> **Simulador educativo interactivo** que permite visualizar y entender el funcionamiento interno de una computadora a nivel de hardware.
 
-## 🎯 Características
+---
 
-- **Interfaz Gráfica Intuitiva**: Visualización en tiempo real de todos los componentes
-- **Arquitectura Completa**: Implementación de ALU, Memoria, Registros y Unidad de Control
-- **Ejecución Paso a Paso**: Posibilidad de ejecutar instrucciones una por una para análisis detallado
-- **Visualización de Buses**: Representación gráfica de los buses de datos, direcciones y control
-- **Registro PSW**: Monitoreo de flags de estado (Zero, Carry, Sign, Overflow)
+## 🎯 ¿Qué es este proyecto?
 
-## 🏗️ Arquitectura del Sistema
+Un simulador completo de arquitectura de computadora con **interfaz gráfica intuitiva** que implementa:
+- **Componentes de hardware** reales (ALU, Memoria, Registros, Unidad de Control)
+- **Ejecución paso a paso** de instrucciones
+- **Visualización en tiempo real** de buses y transferencias de datos
+- **Conjunto de instrucciones** educativo pero completo
 
-### Componentes Principales
-
-1. **ALU (Unidad Aritmético-Lógica)**
-   - Operaciones aritméticas: ADD, SUB, MUL, DIV
-   - Operaciones lógicas: AND, OR, NOT, XOR
-   - Manejo de flags PSW
-
-2. **Memoria**
-   - Separación entre memoria de instrucciones y datos
-   - 32 posiciones de memoria (16 para instrucciones, 16 para datos)
-   - Carga y almacenamiento de datos
-
-3. **Banco de Registros**
-   - 9 registros de propósito general (R1-R9)
-   - Registros especiales: PC, MAR, IR, MBR, PSW
-
-4. **Unidad de Control**
-   - Ciclo fetch-decode-execute
-   - Generación de señales de control
-   - Coordinación de todos los componentes
-
-## 🚀 Instalación y Uso
-
-### Requisitos
-
-- Python 3.8 o superior
-- Tkinter (incluido con Python)
-
-### Ejecución
+## 🚀 Inicio Rápido
 
 ```bash
-# Clonar el repositorio
-git clone https://github.com/usuario/ProyectoArquitecturaUdC.git
+# 1. Clonar e instalar
+git clone https://github.com/JhonierSerna14/ProyectoArquitecturaUdC.git
 cd ProyectoArquitecturaUdC
+pip install -r requirements.txt
 
-# Ejecutar el simulador
+# 2. Ejecutar
 python main.py
-```
 
-## 📝 Conjunto de Instrucciones
-
-### Operaciones Aritméticas
-- `ADD R1, R2` - Suma R1 + R2, resultado en R1
-- `SUB R1, R2` - Resta R1 - R2, resultado en R1
-- `MUL R1, R2` - Multiplica R1 * R2, resultado en R1
-- `DIV R1, R2` - Divide R1 / R2, resultado en R1
-
-### Operaciones Lógicas
-- `AND R1, R2` - AND lógico entre R1 y R2
-- `OR R1, R2` - OR lógico entre R1 y R2
-- `NOT R1, R2` - NOT lógico de R2, resultado en R1
-- `XOR R1, R2` - XOR lógico entre R1 y R2
-
-### Operaciones de Memoria
-- `LOAD R1, valor` - Carga un valor inmediato en R1
-- `LOAD R1, *R2` - Carga el valor de la dirección en R2 hacia R1
-- `STORE R1, dirección` - Almacena R1 en la dirección especificada
-- `MOVE R1, R2` - Copia el valor de R2 a R1
-
-### Operaciones de Control
-- `JP dirección` - Salto incondicional a la dirección
-- `JPZ dirección, R1` - Salto condicional si R1 es cero
-
-## 💡 Ejemplos de Uso
-
-### Ejemplo 1: Suma Básica
-```assembly
+# 3. Escribir código assembly y experimentar
 LOAD R1, 10
 LOAD R2, 5
 ADD R1, R2
 ```
-**Resultado**: R1 contendrá 15
 
-### Ejemplo 2: Cálculo con Memoria
-```assembly
-LOAD R1, 20
-LOAD R2, 16
-STORE R1, 16
-LOAD R3, *R2
-ADD R1, R3
-```
-**Resultado**: R1 contendrá 40
+**🎓 Para estudiantes**: Comienza con la [Guía del Usuario](docs/user-guide.md)  
+**👨‍💻 Para desarrolladores**: Ve a la [Guía del Desarrollador](docs/developer-guide.md)
 
-### Ejemplo 3: Operaciones Lógicas
-```assembly
-LOAD R1, 12
-LOAD R2, 8
-AND R1, R2
-OR R1, R2
-```
+---
 
-### Ejemplo 4: Programa con Salto
-```assembly
-LOAD R1, 0
-LOAD R2, 1
-ADD R1, R2
-JPZ 0, R1
-```
+## 📚 Características Principales
 
-## 🎮 Modo de Uso de la Interfaz
+### 🖥️ Componentes Implementados
+- **ALU**: Operaciones aritméticas y lógicas con flags PSW
+- **Memoria**: Sistema de memoria unificado (32 posiciones)
+- **Registros**: Banco de 9 registros + registros especiales
+- **Unidad de Control**: Ciclo fetch-decode-execute completo
 
-1. **Cargar Instrucciones**: Escribe las instrucciones en el área de texto
-2. **Ejecutar Todo**: Presiona "Comenzar" para ejecutar todas las instrucciones
-3. **Paso a Paso**: 
-   - Presiona "Cargar Instrucciones" para cargar sin ejecutar
-   - Usa "Paso a paso" para ejecutar una instrucción a la vez
-4. **Visualización**: Observa cómo se actualizan los registros, memoria y buses
+### 💻 Conjunto de Instrucciones
+| Categoría | Instrucciones | Ejemplo |
+|-----------|---------------|---------|
+| **Aritméticas** | ADD, SUB, MUL, DIV | `ADD R1, R2` |
+| **Lógicas** | AND, OR, NOT, XOR | `AND R1, R2` |
+| **Memoria** | LOAD, STORE, MOVE | `LOAD R1, 10` |
+| **Control** | JP, JPZ | `JPZ 0, R1` |
+
+### 🎮 Modos de Ejecución
+- **Ejecución completa**: Ejecuta todo el programa automáticamente
+- **Paso a paso**: Control granular para análisis detallado
+- **Depuración visual**: Observa cada cambio en tiempo real
+---
 
 ## 📁 Estructura del Proyecto
 
+<details>
+<summary>🗂️ Ver estructura completa</summary>
+
 ```
 ProyectoArquitecturaUdC/
-├── main.py                    # Archivo principal de ejecución
-├── README.md                  # Documentación del proyecto
-├── .gitignore                # Archivos a ignorar por Git
-├── examples/                  # Ejemplos de programas
-│   ├── basic_arithmetic.txt
-│   ├── memory_operations.txt
-│   ├── logical_operations.txt
-│   └── control_flow.txt
-└── Class/                     # Clases del simulador
-    ├── ALU.py                # Unidad Aritmético-Lógica
-    ├── ComputerSimulator.py  # Simulador principal
-    ├── ControlUnit.py        # Unidad de Control
-    ├── Memory.py             # Gestión de memoria
-    ├── Register.py           # Registro individual
-    ├── RegisterBank.py       # Banco de registros
-    └── WiredControlUnit.py   # Unidad de control cableada
+│
+├── 📄 main.py                    # Punto de entrada
+├── 📄 requirements.txt           # Dependencias principales
+├── 📄 requirements-dev.txt       # Herramientas de desarrollo
+│
+├── 📂 core/                      # Lógica de negocio
+│   ├── computer.py               # Modelo principal (MVC)
+│   ├── instruction.py            # Representación de instrucciones
+│   └── exceptions.py             # Excepciones personalizadas
+│
+├── 📂 hardware/                  # Componentes de hardware
+│   ├── alu.py                    # Unidad Aritmético-Lógica
+│   ├── memory.py                 # Sistema de memoria
+│   ├── register_bank.py          # Banco de registros
+│   └── control_unit.py           # Unidad de control
+│
+├── 📂 gui/                       # Interfaz gráfica (MVC)
+│   ├── simulator_view.py         # Vista del simulador
+│   └── simulator_controller.py   # Controlador
+│
+├── 📂 tests/                     # Suite de pruebas (85%+ cobertura)
+│   ├── unit/                     # 41 pruebas unitarias
+│   └── integration/              # Pruebas de integración
+│
+├── 📂 scripts/                   # Herramientas de desarrollo
+│   ├── testing/                  # Scripts de pruebas
+│   └── analysis/                 # Análisis de código
+│
+├── 📂 docs/                      # Documentación completa
+│   ├── user-guide.md             # Guía del usuario
+│   ├── developer-guide.md        # Guía del desarrollador
+│   └── installation.md           # Instalación detallada
+│
+└── 📂 examples/                  # Ejemplos educativos
+    ├── basic_arithmetic.txt      # Operaciones básicas
+    └── control_flow.txt          # Estructuras de control
 ```
+</details>
+
+## Arquitectura MVC
+
+### Modelo (Model)
+- **Archivo**: `core/computer.py`
+- **Responsabilidad**: Lógica de negocio del simulador
+- **Funciones**:
+  - Coordinar componentes de hardware
+  - Gestionar estado del sistema
+  - Ejecutar instrucciones
+  - Notificar cambios a observadores
+
+### Vista (View)
+- **Archivo**: `gui/simulator_view.py`
+- **Responsabilidad**: Interfaz gráfica de usuario
+- **Funciones**:
+  - Mostrar estado del sistema
+  - Capturar entrada del usuario
+  - Actualizar visualización
+  - Observar cambios del modelo
+
+### Controlador (Controller)
+- **Archivo**: `gui/simulator_controller.py`
+- **Responsabilidad**: Coordinar Modelo y Vista
+- **Funciones**:
+  - Procesar eventos de usuario
+  - Actualizar el modelo
+  - Gestionar flujo de ejecución
+  - Manejar errores
+
+---
+
+## 🧪 Testing y Calidad de Código
+
+### ✅ Métricas de Calidad
+- **41 pruebas unitarias** - 100% de éxito
+- **Cobertura >85%** - Objetivo de calidad alto
+- **Metodología de partición equivalente** aplicada
+- **Integración continua** con análisis automático
+
+### 🔧 Ejecutar Pruebas
+```bash
+# Todas las pruebas
+python scripts/testing/run_all_tests.py
+
+# Solo pruebas unitarias
+python scripts/testing/run_tests.py
+```
+
+### 📊 Reportes
+- **Métricas detalladas**: Ver [documentación de testing](docs/testing/README.md)
+
+---
+
+## 🎓 Para Estudiantes
+
+### 💡 Ejemplos Rápidos
+
+**Suma básica:**
+```assembly
+LOAD R1, 15
+LOAD R2, 25
+ADD R1, R2      # R1 = 40
+```
+
+**Uso de memoria:**
+```assembly
+LOAD R1, 100
+STORE R1, 16    # Guardar en memoria[16]
+LOAD R2, *16    # Cargar desde memoria[16]
+ADD R1, R2      # R1 = 200
+```
+
+**Bucle simple:**
+```assembly
+LOAD R1, 5      # Contador
+LOAD R2, 1      # Decremento
+SUB R1, R2      # R1 = R1 - 1
+JPZ 0, R1       # Si R1 = 0, saltar al inicio
+```
+
+### 📖 Recursos Educativos
+- [Conceptos Básicos](docs/educational/basic-concepts.md)
+- [Ejemplos Paso a Paso](docs/educational/examples.md)
+- [Ejercicios Prácticos](docs/educational/exercises.md)
+
+---
+
+## 👨‍� Para Desarrolladores
+
+### 🛠️ Tecnologías Utilizadas
+- **Python 3.8+** - Lenguaje principal
+- **Tkinter** - Interfaz gráfica nativa
+- **pytest** - Framework de testing
+- **MVC Pattern** - Arquitectura del software
+
+### 🏗️ Arquitectura
+- **Patrón MVC** implementado completamente
+- **Patrón Observer** para comunicación entre componentes
+- **SOLID principles** aplicados
+- **Clean Architecture** para mantenibilidad
+
+
+**⭐ Si este proyecto te es útil, considera darle una estrella ⭐**
+
+*Desarrollado con ❤️ para la comunidad educativa*
+
+### 🐛 Tracking de Bugs
+
+**Ver documentación completa**: 
+- [Documentación de Testing](docs/testing/README.md)
+- [Registro de Bugs](docs/bugs/BUGS_REGISTRO.md)
+
 
 ## 🎓 Propósito Educativo
 

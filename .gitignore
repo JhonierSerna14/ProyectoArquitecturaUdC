@@ -171,3 +171,8 @@ Thumbs.db
 # Project specific
 *.backup
 *.tmp
+fix_*.py
+.pytest_cache/
+*.pyc
+temp_*
+*_temp.py
