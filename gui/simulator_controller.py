@@ -116,7 +116,7 @@ class SimulatorController:
             self._computer.reset()
             
             # Recargar el programa
-            program_lines = [line.strip() for line in self._view.get_program_text().split('\\n') if line.strip()]
+            program_lines = [line.strip() for line in self._view.get_program_text().split('\n') if line.strip()]
             self._computer.load_program(program_lines)
             
             # Ejecutar paso a paso con delays para visualización
@@ -134,8 +134,10 @@ class SimulatorController:
             
         except Exception as e:
             self._is_executing = False
+            # Capturar el error para usarlo en la lambda
+            error_message = str(e)
             # Programar mostrar error en el hilo principal
-            self._view.root.after(0, lambda: self._view.show_error("Error de Ejecución", str(e)))
+            self._view.root.after(0, lambda: self._view.show_error("Error de Ejecución", error_message))
     
     def step_execution(self) -> None:
         """
