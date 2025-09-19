@@ -131,7 +131,7 @@ class InstructionSet:
         # Operaciones de registro
         'MOVE',
         # Operaciones de control
-        'JP', 'JPZ'
+        'JP', 'JPZ', 'HALT'
     }
     
     @classmethod

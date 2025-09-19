@@ -199,6 +199,10 @@ class Computer(Observable, Observer):
             self._execute_single_cycle()
             return True
             
+        except ALUOperationError:
+            # Re-lanzar errores de ALU sin modificar
+            self._is_running = False
+            raise
         except Exception as e:
             self._is_running = False
             raise SimulatorError(f"Step execution error: {str(e)}")
@@ -214,16 +218,19 @@ class Computer(Observable, Observer):
         self._ir_register.set_value(instruction_str)
         
         # DECODE
-        opcode, operand1, operand2 = self._control_unit.decode()
+        opcode, operand1, operand2, operand3 = self._control_unit.decode()
         
         # Generar señales de control
         control_signals = self._wired_control_unit.generate_control_signals(opcode)
         
         # Preparar operandos
-        resolved_operand1, resolved_operand2 = self._resolve_operands(operand1, operand2)
+        resolved_operand1, resolved_operand2, resolved_operand3 = self._resolve_operands(operand1, operand2, operand3)
         
         # EXECUTE
-        self._execute_instruction(opcode, operand1, operand2, resolved_operand1, resolved_operand2, control_signals)
+        self._execute_instruction(opcode, operand1, operand2, 
+                                resolved_operand1, resolved_operand2, 
+                                control_signals,
+                                operand3, resolved_operand3)
         
         # Actualizar PC (si no fue modificado por salto)
         if opcode not in ['JP', 'JPZ'] or (opcode == 'JPZ' and resolved_operand2 != 0):
@@ -232,10 +239,11 @@ class Computer(Observable, Observer):
         # Notificar finalización de ciclo
         self._control_unit.execute_completed()
     
-    def _resolve_operands(self, operand1: str, operand2: str) -> tuple:
+    def _resolve_operands(self, operand1: str, operand2: str, operand3: str = None) -> tuple:
         """Resuelve los operandos a sus valores reales."""
         resolved_op1 = None
         resolved_op2 = None
+        resolved_op3 = None
         
         # Resolver operand1
         if operand1:
@@ -248,22 +256,35 @@ class Computer(Observable, Observer):
         if operand2:
             if operand2.startswith('*'):
                 # Direccionamiento indirecto
-                address_register = operand2[1:]
-                if self._register_bank.exists(address_register):
-                    address = self._register_bank.get(address_register)
+                address_part = operand2[1:]
+                if address_part.isdigit():
+                    # Dirección literal: *18
+                    address = int(address_part)
+                    resolved_op2 = self._memory.load_data(address).value
+                elif self._register_bank.exists(address_part):
+                    # Registro indirecto: *R1
+                    address = self._register_bank.get(address_part)
                     resolved_op2 = self._memory.load_data(address).value
                 else:
-                    raise InvalidRegisterError(f"Invalid register for indirect addressing: {address_register}")
+                    raise InvalidRegisterError(f"Invalid operand for indirect addressing: {operand2}")
             elif operand2.isdigit() or (operand2.startswith('-') and operand2[1:].isdigit()):
                 resolved_op2 = int(operand2)
             elif self._register_bank.exists(operand2):
                 resolved_op2 = self._register_bank.get(operand2)
         
-        return resolved_op1, resolved_op2
+        # Resolver operand3
+        if operand3:
+            if operand3.isdigit() or (operand3.startswith('-') and operand3[1:].isdigit()):
+                resolved_op3 = int(operand3)
+            elif self._register_bank.exists(operand3):
+                resolved_op3 = self._register_bank.get(operand3)
+        
+        return resolved_op1, resolved_op2, resolved_op3
     
     def _execute_instruction(self, opcode: str, op1: str, op2: str, 
                            resolved_op1: Any, resolved_op2: Any, 
-                           control_signals: Dict[str, Any]) -> None:
+                           control_signals: Dict[str, Any],
+                           op3: str = None, resolved_op3: Any = None) -> None:
         """Ejecuta una instrucción específica."""
         
         if control_signals.get('alu_operation'):
@@ -271,7 +292,15 @@ class Computer(Observable, Observer):
             result = self._alu.execute(opcode, resolved_op1, resolved_op2)
             
             if opcode in ['ADD', 'SUB', 'MUL', 'DIV', 'AND', 'OR', 'NOT', 'XOR']:
-                self._register_bank.set(op1, result)
+                # Para operaciones de 3 operandos, guardar en el tercer operando (destino)
+                if op3:
+                    self._register_bank.set(op3, result)
+                elif opcode == 'NOT':
+                    # NOT usa op2 como destino
+                    self._register_bank.set(op2, result)
+                else:
+                    # Para compatibilidad con operaciones de 2 operandos
+                    self._register_bank.set(op1, result)
                 
         elif opcode == 'JP':
             # Salto incondicional
@@ -288,7 +317,7 @@ class Computer(Observable, Observer):
                 # Carga indirecta ya resuelta
                 value = resolved_op2
             else:
-                # Carga inmediata
+                # Carga inmediata - siempre usar el valor tal como está
                 value = resolved_op2
                 
             self._mbr_register.set_value(value)

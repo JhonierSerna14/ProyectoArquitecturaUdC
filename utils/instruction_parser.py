@@ -24,6 +24,7 @@ class InstructionParser:
         self._register_pattern = re.compile(r'^R[1-9]$')
         self._immediate_pattern = re.compile(r'^-?\d+$')
         self._indirect_pattern = re.compile(r'^\*R[1-9]$')
+        self._indirect_address_pattern = re.compile(r'^\*\d+$')
         self._address_pattern = re.compile(r'^\d+$')
     
     def parse(self, instruction_str: str, address: int = 0) -> Instruction:
@@ -59,20 +60,21 @@ class InstructionParser:
             )
         
         # Parsear operandos
-        operand1, operand2 = self._parse_operands(parts[1] if len(parts) > 1 else "", opcode)
+        operand1, operand2, operand3 = self._parse_operands(parts[1] if len(parts) > 1 else "", opcode)
         
         # Validar semántica de la instrucción
-        self._validate_instruction_semantics(opcode, operand1, operand2)
+        self._validate_instruction_semantics(opcode, operand1, operand2, operand3)
         
         return Instruction(
-            opcode=opcode,
+            type=opcode,
             operand1=operand1,
             operand2=operand2,
+            operand3=operand3,
             raw_instruction=clean_instruction,
             address=address
         )
     
-    def _parse_operands(self, operands_str: str, opcode: str) -> Tuple[Optional[str], Optional[str]]:
+    def _parse_operands(self, operands_str: str, opcode: str) -> Tuple[Optional[str], Optional[str], Optional[str]]:
         """
         Parsea los operandos de una instrucción.
         
@@ -81,13 +83,38 @@ class InstructionParser:
             opcode: Código de operación
             
         Returns:
-            Tupla con (operand1, operand2)
+            Tupla con (operand1, operand2, operand3)
         """
         if not operands_str.strip():
-            return None, None
+            return None, None, None
         
         # Dividir operandos por coma
         operands = [op.strip() for op in operands_str.split(',')]
+        
+        # Determinar número de operandos según la operación
+        if opcode in ['ADD', 'SUB', 'MUL', 'DIV', 'AND', 'OR', 'XOR']:
+            # Operaciones de 3 operandos: src1, src2, dest
+            if len(operands) != 3:
+                raise InvalidInstructionError(f"{opcode} requires three operands: src1, src2, dest")
+            return operands[0], operands[1], operands[2]
+        
+        elif opcode in ['LOAD', 'STORE', 'MOVE', 'JP', 'JPZ', 'NOT']:
+            # Operaciones de 2 operandos
+            if len(operands) < 1:
+                raise InvalidInstructionError(f"{opcode} requires at least one operand")
+            return (operands[0], 
+                   operands[1] if len(operands) > 1 else None,
+                   None)
+        
+        elif opcode in ['HALT']:
+            # Operaciones sin operandos
+            return (None, None, None)
+        
+        else:
+            # Default: hasta 3 operandos
+            return (operands[0] if len(operands) > 0 else None,
+                   operands[1] if len(operands) > 1 else None,
+                   operands[2] if len(operands) > 2 else None)
         
         operand1 = operands[0] if len(operands) > 0 and operands[0] else None
         operand2 = operands[1] if len(operands) > 1 and operands[1] else None
@@ -146,7 +173,7 @@ class InstructionParser:
             f"Expected: register (R1-R9), immediate value, indirect (*R1-*R9), or address (0-31)"
         )
     
-    def _validate_instruction_semantics(self, opcode: str, operand1: Optional[str], operand2: Optional[str]) -> None:
+    def _validate_instruction_semantics(self, opcode: str, operand1: Optional[str], operand2: Optional[str], operand3: Optional[str] = None) -> None:
         """
         Valida la semántica de la instrucción completa.
         
@@ -210,8 +237,10 @@ class InstructionParser:
         if not self._register_pattern.match(op1):
             raise InvalidInstructionError("LOAD first operand must be a register (R1-R9)")
         
-        if not (self._immediate_pattern.match(op2) or self._indirect_pattern.match(op2)):
-            raise InvalidInstructionError("LOAD second operand must be immediate value or indirect register (*R1-*R9)")
+        if not (self._immediate_pattern.match(op2) or 
+                self._indirect_pattern.match(op2) or 
+                self._indirect_address_pattern.match(op2)):
+            raise InvalidInstructionError("LOAD second operand must be immediate value, indirect register (*R1-*R9), or indirect address (*16)")
     
     def _validate_store_instruction(self, op1: Optional[str], op2: Optional[str]) -> None:
         """Valida instrucciones STORE."""

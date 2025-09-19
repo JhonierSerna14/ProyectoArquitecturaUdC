@@ -10,6 +10,7 @@ from core.observer import Observable, EventType
 from core.instruction import Instruction
 from core.exceptions import InvalidInstructionError
 from hardware.memory import Memory
+from utils.instruction_parser import InstructionParser
 
 
 class ControlUnit(Observable):
@@ -25,6 +26,7 @@ class ControlUnit(Observable):
         super().__init__()
         self._instruction_register: Optional[Instruction] = None
         self._current_pc = 0
+        self._parser = InstructionParser()
     
     @property
     def instruction_register(self) -> Optional[Instruction]:
@@ -75,12 +77,12 @@ class ControlUnit(Observable):
         except Exception as e:
             raise InvalidInstructionError(f"Error fetching instruction at address {pc}: {str(e)}")
     
-    def decode(self) -> Tuple[str, str, str]:
+    def decode(self) -> Tuple[str, str, str, str]:
         """
         Realiza la fase de decode del ciclo de instrucción.
         
         Returns:
-            Tupla con (opcode, operand1, operand2)
+            Tupla con (opcode, operand1, operand2, operand3)
             
         Raises:
             InvalidInstructionError: Si no hay instrucción cargada
@@ -93,17 +95,19 @@ class ControlUnit(Observable):
         self.notify_observers(
             EventType.INSTRUCTION_DECODED,
             {
-                'opcode': instruction.opcode,
+                'opcode': instruction.type,
                 'operand1': instruction.operand1,
                 'operand2': instruction.operand2,
+                'operand3': instruction.operand3,
                 'instruction_obj': instruction
             }
         )
         
         return (
-            instruction.opcode,
+            instruction.type.value if hasattr(instruction.type, 'value') else str(instruction.type),
             instruction.operand1 or '',
-            instruction.operand2 or ''
+            instruction.operand2 or '',
+            instruction.operand3 or ''
         )
     
     def execute_completed(self, result: any = None) -> None:
@@ -154,27 +158,9 @@ class ControlUnit(Observable):
             InvalidInstructionError: Si la instrucción es inválida
         """
         try:
-            parts = instruction_str.strip().split(maxsplit=1)
-            
-            if not parts:
-                raise InvalidInstructionError("Empty instruction")
-            
-            opcode = parts[0].upper()
-            operand1 = None
-            operand2 = None
-            
-            if len(parts) > 1:
-                operands = parts[1].split(',')
-                operand1 = operands[0].strip()
-                operand2 = operands[1].strip() if len(operands) > 1 else None
-            
-            return Instruction(
-                opcode=opcode,
-                operand1=operand1,
-                operand2=operand2,
-                raw_instruction=instruction_str,
-                address=address
-            )
+            # Usar el parser oficial para obtener la instrucción parseada
+            instruction = self._parser.parse(instruction_str, address)
+            return instruction
             
         except Exception as e:
             raise InvalidInstructionError(f"Invalid instruction format '{instruction_str}': {str(e)}")
