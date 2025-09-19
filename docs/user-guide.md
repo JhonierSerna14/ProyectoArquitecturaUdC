@@ -37,46 +37,66 @@ python main.py
 | `MUL R1, R2` | Multiplica R1 × R2 → R1 | `MUL R1, R5` |
 | `DIV R1, R2` | Divide R1 ÷ R2 → R1 | `DIV R2, R3` |
 
-### Operaciones Lógicas
+### Operaciones Aritméticas (3 Operandos)
 | Instrucción | Descripción | Ejemplo |
 |-------------|-------------|---------|
-| `AND R1, R2` | R1 AND R2 → R1 | `AND R1, R2` |
-| `OR R1, R2` | R1 OR R2 → R1 | `OR R3, R4` |
-| `NOT R1, R2` | NOT R2 → R1 | `NOT R1, R2` |
-| `XOR R1, R2` | R1 XOR R2 → R1 | `XOR R5, R6` |
+| `ADD R1, R2, R3` | R1 + R2 → R3 | `ADD R1, R2, R3` |
+| `SUB R1, R2, R3` | R1 - R2 → R3 | `SUB R4, R5, R6` |
+| `MUL R1, R2, R3` | R1 × R2 → R3 | `MUL R1, R2, R3` |
+| `DIV R1, R2, R3` | R1 ÷ R2 → R3 | `DIV R7, R8, R9` |
+
+> **Nota**: División por cero retorna 0 y establece el flag Z
+
+### Operaciones Lógicas (3 Operandos)
+| Instrucción | Descripción | Ejemplo |
+|-------------|-------------|---------|
+| `AND R1, R2, R3` | R1 AND R2 → R3 | `AND R1, R2, R3` |
+| `OR R1, R2, R3` | R1 OR R2 → R3 | `OR R3, R4, R5` |
+| `XOR R1, R2, R3` | R1 XOR R2 → R3 | `XOR R5, R6, R7` |
+| `NOT R1, R2` | NOT R1 → R2 | `NOT R1, R2` |
 
 ### Operaciones de Memoria
 | Instrucción | Descripción | Ejemplo |
 |-------------|-------------|---------|
 | `LOAD R1, valor` | Carga valor inmediato | `LOAD R1, 10` |
-| `LOAD R1, *R2` | Carga desde memoria | `LOAD R1, *R2` |
-| `STORE R1, dir` | Almacena en memoria | `STORE R1, 16` |
+| `LOAD R1, *R2` | Carga desde memoria (indirecto) | `LOAD R1, *R2` |
+| `LOAD R1, *16` | Carga desde dirección directa | `LOAD R1, *16` |
+| `STORE R1, dir` | Almacena en memoria | `STORE R1, 18` |
 | `MOVE R1, R2` | Copia R2 → R1 | `MOVE R1, R2` |
+
+> **Memoria**: 32 posiciones total (0-15 instrucciones, 16-31 datos)
 
 ### Operaciones de Control
 | Instrucción | Descripción | Ejemplo |
 |-------------|-------------|---------|
 | `JP dirección` | Salto incondicional | `JP 0` |
 | `JPZ dir, R1` | Salto si R1 = 0 | `JPZ 5, R1` |
+| `HALT` | Terminar programa | `HALT` |
 
 ## 💡 Ejemplos Prácticos
 
-### Ejemplo 1: Suma Simple
+### Ejemplo 1: Aritmética con 3 Operandos
 ```assembly
-LOAD R1, 15    # Cargar 15 en R1
-LOAD R2, 25    # Cargar 25 en R2
-ADD R1, R2     # R1 = R1 + R2 (40)
+LOAD R1, 15       # Cargar 15 en R1
+LOAD R2, 25       # Cargar 25 en R2
+ADD R1, R2, R3    # R3 = R1 + R2 = 40
+SUB R1, R2, R4    # R4 = R1 - R2 = -10
+MUL R1, R2, R5    # R5 = R1 * R2 = 375
+DIV R5, R1, R6    # R6 = R5 / R1 = 25
 ```
 
-### Ejemplo 2: Operaciones con Memoria
+### Ejemplo 2: Operaciones con Memoria (Memoria de 32 bits)
 ```assembly
-LOAD R1, 100   # Cargar 100 en R1
-STORE R1, 16   # Guardar R1 en dirección 16
-LOAD R2, *16   # Cargar desde dirección 16 a R2
-ADD R1, R2     # R1 = 100 + 100 = 200
+LOAD R1, 100      # Cargar 100 en R1
+STORE R1, 18      # Guardar R1 en dirección 18 (área de datos)
+LOAD R2, *18      # Cargar desde dirección 18 a R2 (directo)
+LOAD R3, 18       # Cargar dirección 18 en R3
+LOAD R4, *R3      # Cargar desde memoria[R3] a R4 (indirecto)
+ADD R1, R2, R5    # R5 = 100 + 100 = 200
 ```
 
-### Ejemplo 3: Programa con Bucle
+### Ejemplo 3: Programa con Bucle y Control
+```assembly
 ```assembly
 LOAD R1, 5     # Contador inicial
 LOAD R2, 1     # Decremento

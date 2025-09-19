@@ -2,7 +2,17 @@
 
 Documentación técnica para desarrolladores que contribuyen al proyecto
 
-## 🛠️ Setup del Entorno de Desarrollo
+## � Características Principales (v3.0)
+
+### ✨ Nuevas Funcionalidades
+- **Instrucciones de 3 operandos**: `ADD R1, R2, R3` (fuente1, fuente2, destino)
+- **Memoria de 32 bits**: 16 instrucciones + 16 datos (0-15, 16-31)
+- **Sintaxis LOAD avanzada**: `LOAD R1, *18` (dirección directa), `LOAD R1, *R2` (indirecto)
+- **División por cero segura**: Retorna 0 y establece flag Z
+- **Patrón Observer corregido**: Método `update()` estándar
+- **Validación robusta**: Rangos y direcciones de memoria
+
+## �🛠️ Setup del Entorno de Desarrollo
 
 ### Requisitos
 - Python 3.8+
@@ -39,10 +49,19 @@ pip install -r requirements-dev.txt
 
 ### Estructura de Módulos
 - **`core/`**: Lógica de negocio
+  - `computer.py`: Orquestador principal con soporte 3-operandos
+  - `instruction.py`: Definición de instrucciones (HALT incluido)
+  - `exceptions.py`: Manejo de errores personalizado
 - **`hardware/`**: Componentes de hardware
+  - `alu.py`: ALU con división segura y validación de rangos
+  - `memory.py`: Memoria 32-bits con áreas separadas
+  - `register_bank.py`: Banco de registros R1-R9
+  - `control_unit.py`: Unidad de control con 3-operandos
 - **`gui/`**: Interfaz gráfica (MVC)
 - **`utils/`**: Utilidades y helpers
-- **`tests/`**: Suite de pruebas
+  - `instruction_parser.py`: Parser avanzado con validación
+- **`tests/`**: Suite de pruebas (191 tests)
+- **`examples/`**: Ejemplos actualizados con nueva sintaxis
 
 ## 🧪 Testing y Calidad
 
@@ -99,7 +118,56 @@ def add_operation(self, operand1: int, operand2: int) -> int:
         Resultado de la suma
         
     Raises:
-        OverflowException: Si el resultado excede el rango
+        Raises:
+        ALUOperationError: Si hay error en la operación
+    """
+
+## 🎯 Instrucciones Soportadas
+
+### Aritméticas (3 Operandos)
+```python
+# Formato: OPERACION fuente1, fuente2, destino
+"ADD R1, R2, R3"    # R3 = R1 + R2
+"SUB R4, R5, R6"    # R6 = R4 - R5
+"MUL R7, R8, R9"    # R9 = R7 * R8
+"DIV R1, R2, R3"    # R3 = R1 / R2 (división por 0 = 0)
+```
+
+### Lógicas (2-3 Operandos)
+```python
+"AND R1, R2, R3"    # R3 = R1 AND R2
+"OR R1, R2, R3"     # R3 = R1 OR R2
+"XOR R1, R2, R3"    # R3 = R1 XOR R2
+"NOT R1, R2"        # R2 = NOT R1 (2 operandos)
+```
+
+### Memoria
+```python
+"LOAD R1, 100"      # Carga inmediata
+"LOAD R1, *18"      # Carga desde memoria[18]
+"LOAD R1, *R2"      # Carga indirecta desde memoria[R2]
+"STORE R1, 18"      # Guarda R1 en memoria[18]
+```
+
+### Control
+```python
+"JP 5"              # Salto incondicional
+"JPZ 0, R1"         # Salto si R1 = 0
+"HALT"              # Terminar programa
+```
+
+## 🧠 Arquitectura de Memoria
+
+### Distribución (32 bits total)
+```
+Direcciones 0-15:  Área de instrucciones
+Direcciones 16-31: Área de datos
+```
+
+### Validaciones
+- **Instrucciones**: Solo pueden escribirse en 0-15
+- **Datos**: Solo pueden accederse en 16-31
+- **Fuera de rango**: Genera `MemoryOverflowError`
     """
     pass
 ```
