@@ -1,5 +1,22 @@
-LOAD R1, 20
-LOAD R2, 16
-STORE R1, 16
-LOAD R3, *R2
-ADD R1, R3
+# Ejemplo de operaciones de memoria
+# Memoria de datos: direcciones 16-31 (total 32 bits de memoria)
+# LOAD inmediato: LOAD R1, valor
+# LOAD desde memoria: LOAD R1, *dirección o LOAD R1, *registro
+
+LOAD R1, 100     # Cargar valor inmediato 100 en R1
+STORE R1, 18     # Guardar R1 en dirección de memoria 18
+
+LOAD R2, 200     # Cargar valor inmediato 200 en R2
+STORE R2, 19     # Guardar R2 en dirección de memoria 19
+
+# Cargar desde memoria usando dirección directa
+LOAD R3, *18     # Cargar desde memoria[18] a R3 (debe ser 100)
+LOAD R4, *19     # Cargar desde memoria[19] a R4 (debe ser 200)
+
+# Cargar usando registro indirecto
+LOAD R5, 18      # Cargar dirección 18 en R5
+LOAD R6, *R5     # Cargar desde memoria[R5] a R6 (indirecto)
+
+# Operaciones aritméticas con valores de memoria
+ADD R3, R4, R7   # R7 = R3 + R4 = 100 + 200 = 300
+HALT

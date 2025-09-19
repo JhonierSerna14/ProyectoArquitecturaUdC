@@ -1,7 +1,17 @@
-LOAD R1, 15
-LOAD R2, 3
-MUL R1, R2
-LOAD R3, 5
-DIV R1, R3
-LOAD R4, 2
-SUB R1, R4
+# Ejemplo de aritmética compleja: ((15 * 3) / 5) - 2
+# Usando formato de 3 operandos para mejor claridad
+
+LOAD R1, 15      # Cargar 15 en R1
+LOAD R2, 3       # Cargar 3 en R2
+MUL R1, R2, R3   # R3 = R1 * R2 = 15 * 3 = 45
+
+LOAD R4, 5       # Cargar 5 en R4
+DIV R3, R4, R5   # R5 = R3 / R4 = 45 / 5 = 9
+
+LOAD R6, 2       # Cargar 2 en R6
+SUB R5, R6, R7   # R7 = R5 - R6 = 9 - 2 = 7
+
+# División por cero (retorna 0 y establece flag Z)
+LOAD R8, 0       # Cargar 0 en R8
+DIV R1, R8, R9   # R9 = R1 / 0 = 0 (comportamiento seguro)
+HALT

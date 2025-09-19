@@ -1,4 +1,21 @@
-LOAD R1, 0
-LOAD R2, 1
-ADD R1, R2
-JPZ 0, R1
+# Ejemplo de control de flujo con saltos
+# JPZ: Salto condicional si el segundo operando es cero
+# JP: Salto incondicional
+
+LOAD R1, 5       # Contador inicial
+LOAD R2, 1       # Decremento
+LOAD R3, 0       # Valor de comparación
+
+# Bucle simple que cuenta hacia atrás
+SUB R1, R2, R1   # R1 = R1 - 1 (decrementar contador)
+JPZ 4, R1        # Si R1 es 0, saltar a instrucción 4 (HALT)
+JP 3             # Salto incondicional de vuelta al SUB
+HALT             # Fin del programa
+
+# Ejemplo con salto hacia adelante
+LOAD R4, 10      # Cargar 10
+LOAD R5, 10      # Cargar 10
+SUB R4, R5, R6   # R6 = R4 - R5 = 0
+JPZ 8, R6        # Si R6 es 0, saltar a HALT
+LOAD R7, 999     # Esta línea se omitirá
+HALT

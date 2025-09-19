@@ -1,0 +1,41 @@
+# Ejemplo completo del simulador de computadora
+# Demuestra todas las características: 3 operandos, memoria de 32 bits, nueva sintaxis LOAD
+
+# === ARITMÉTICA CON 3 OPERANDOS ===
+LOAD R1, 10      # Cargar 10 en R1
+LOAD R2, 5       # Cargar 5 en R2
+ADD R1, R2, R3   # R3 = R1 + R2 = 15
+SUB R1, R2, R4   # R4 = R1 - R2 = 5
+MUL R1, R2, R5   # R5 = R1 * R2 = 50
+DIV R1, R2, R6   # R6 = R1 / R2 = 2
+
+# === OPERACIONES LÓGICAS ===
+LOAD R7, 12      # 1100 en binario
+LOAD R8, 10      # 1010 en binario
+AND R7, R8, R9   # R9 = 12 AND 10 = 8 (1000)
+OR R7, R8, R1    # R1 = 12 OR 10 = 14 (1110)
+XOR R7, R8, R2   # R2 = 12 XOR 10 = 6 (0110)
+NOT R7, R3       # R3 = NOT 12 = -13
+
+# === OPERACIONES DE MEMORIA ===
+# Memoria de datos: direcciones 16-31
+STORE R5, 20     # Guardar R5 (50) en memoria[20]
+STORE R6, 21     # Guardar R6 (2) en memoria[21]
+
+# Cargar desde memoria con dirección directa
+LOAD R4, *20     # R4 = memoria[20] = 50
+LOAD R7, *21     # R7 = memoria[21] = 2
+
+# Cargar usando registro indirecto
+LOAD R8, 20      # R8 = 20 (dirección)
+LOAD R9, *R8     # R9 = memoria[R8] = memoria[20] = 50
+
+# === DIVISIÓN POR CERO SEGURA ===
+LOAD R1, 0       # Divisor cero
+DIV R5, R1, R2   # R2 = 50 / 0 = 0 (comportamiento seguro)
+
+# === CONTROL DE FLUJO ===
+LOAD R3, 1       # Contador
+SUB R3, R3, R4   # R4 = R3 - R3 = 0
+JPZ 0, R4        # Si R4 es 0, reiniciar programa (salto a inicio)
+HALT             # Fin del programa

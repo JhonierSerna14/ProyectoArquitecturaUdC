@@ -1,3 +1,10 @@
-LOAD R1, 10
-LOAD R2, 5
-ADD R1, R2
+# Ejemplo de aritmética básica con 3 operandos
+# Formato: OPERACION fuente1, fuente2, destino
+
+LOAD R1, 10      # Cargar valor inmediato 10 en R1
+LOAD R2, 5       # Cargar valor inmediato 5 en R2
+ADD R1, R2, R3   # Sumar R1 + R2 y guardar resultado en R3
+SUB R1, R2, R4   # Restar R1 - R2 y guardar resultado en R4
+MUL R1, R2, R5   # Multiplicar R1 * R2 y guardar resultado en R5
+DIV R1, R2, R6   # Dividir R1 / R2 y guardar resultado en R6
+HALT             # Terminar programa
