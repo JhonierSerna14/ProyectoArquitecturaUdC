@@ -5,10 +5,12 @@ Este módulo implementa la memoria del sistema que gestiona
 instrucciones y datos, notificando cambios de estado.
 """
 
-from typing import Dict, List, Any
-from hardware.register import Register
+from typing import Dict, List, Any, TYPE_CHECKING
 from core.observer import Observable, EventType
 from core.exceptions import InvalidMemoryAddressError, MemoryOverflowError
+
+if TYPE_CHECKING:
+    from hardware.register import Register
 
 
 class Memory(Observable):
@@ -35,7 +37,8 @@ class Memory(Observable):
         self._instruction_memory: List[str] = [''] * self._instruction_size
         
         # Memoria de datos (segunda mitad) - usando registros observables
-        self._data_memory: Dict[int, Register] = {}
+        from hardware.register import Register
+        self._data_memory: Dict[int, 'Register'] = {}
         for i in range(self._instruction_size, size):
             data_register = Register(f"MEM[{i}]")
             data_register.add_observer(self)
@@ -130,7 +133,7 @@ class Memory(Observable):
             }
         )
     
-    def load_data(self, address: int) -> Register:
+    def load_data(self, address: int) -> 'Register':
         """
         Carga un dato desde la memoria.
         
@@ -201,7 +204,7 @@ class Memory(Observable):
         """
         return [instr for instr in self._instruction_memory if instr.strip()]
     
-    def get_data_registers(self) -> Dict[int, Register]:
+    def get_data_registers(self) -> Dict[int, 'Register']:
         """
         Obtiene todos los registros de datos.
         

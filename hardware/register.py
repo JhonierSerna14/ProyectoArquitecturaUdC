@@ -47,17 +47,23 @@ class Register(Observable):
             value: Nuevo valor para el registro
         """
         old_value = self._value
-        self._value = value
         
-        # Notificar el cambio a todos los observadores
-        self.notify_observers(
-            EventType.REGISTER_VALUE_CHANGED,
-            {
-                'register_name': self._name,
-                'old_value': old_value,
-                'new_value': value
-            }
-        )
+        # Solo notificar si el valor realmente cambió
+        if old_value != value:
+            self._value = value
+            
+            # Notificar el cambio a todos los observadores
+            self.notify_observers(
+                EventType.REGISTER_VALUE_CHANGED,
+                {
+                    'register_name': self._name,
+                    'old_value': old_value,
+                    'new_value': value
+                }
+            )
+        else:
+            # Actualizar el valor sin notificar
+            self._value = value
     
     def clear(self) -> None:
         """Limpia el registro estableciendo valor a 0."""

@@ -92,11 +92,12 @@ class ALU(Observable):
     def _validate_operands(self, operand1: int, operand2: int = None) -> None:
         """Valida que los operandos estén en el rango válido."""
         def is_valid_operand(operand):
-            return operand is None or (-0x4000 <= operand <= 0x3FFF)
-        
+            # Permitir rango amplio incluyendo valores unsigned de 32 bits
+            return operand is None or (-2**31 <= operand <= 2**32 - 1)
+
         if not is_valid_operand(operand1) or not is_valid_operand(operand2):
             self._psw['O'] = 1
-            raise OperandOutOfRangeError('Operands out of range [-16384, 16383]')
+            raise OperandOutOfRangeError(f'Operands out of range [{-2**31}, {2**32 - 1}]')
     
     def _reset_flags(self) -> None:
         """Resetea todos los flags del PSW."""
@@ -123,8 +124,7 @@ class ALU(Observable):
             
         elif opcode == 'DIV':
             if operand2 == 0:
-                self._value = 0
-                self._psw['Z'] = 1
+                raise ALUOperationError("División por cero")
             else:
                 self._value = operand1 // operand2
                 
@@ -190,3 +190,36 @@ class ALU(Observable):
             String formateado con los flags del PSW
         """
         return f"Z: {self._psw['Z']} C: {self._psw['C']} S: {self._psw['S']} O: {self._psw['O']}"
+    
+    # Convenience methods for backward compatibility with tests
+    def add(self, operand1: int, operand2: int) -> int:
+        """Suma dos operandos."""
+        return self.execute('ADD', operand1, operand2)
+    
+    def subtract(self, operand1: int, operand2: int) -> int:
+        """Resta dos operandos."""
+        return self.execute('SUB', operand1, operand2)
+    
+    def multiply(self, operand1: int, operand2: int) -> int:
+        """Multiplica dos operandos.""" 
+        return self.execute('MUL', operand1, operand2)
+    
+    def divide(self, operand1: int, operand2: int) -> int:
+        """Divide dos operandos."""
+        return self.execute('DIV', operand1, operand2)
+    
+    def logical_and(self, operand1: int, operand2: int) -> int:
+        """Operación AND lógica."""
+        return self.execute('AND', operand1, operand2)
+    
+    def logical_or(self, operand1: int, operand2: int) -> int:
+        """Operación OR lógica."""
+        return self.execute('OR', operand1, operand2)
+    
+    def logical_not(self, operand: int) -> int:
+        """Operación NOT lógica."""
+        return self.execute('NOT', 0, operand)
+    
+    def logical_xor(self, operand1: int, operand2: int) -> int:
+        """Operación XOR lógica."""
+        return self.execute('XOR', operand1, operand2)
