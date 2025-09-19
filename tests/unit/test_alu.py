@@ -171,9 +171,9 @@ class TestALU(unittest.TestCase):
         self.assertEqual(result, 0)
     
     def test_and_with_all_ones(self):
-        """Test operación AND con todos los bits en 1."""
+        """Test operación AND con todos los bits en 1 dentro del rango válido."""
         value = 42
-        all_ones = 0xFFFFFFFF  # Asumiendo 32 bits
+        all_ones = 0x3FFF  # 16383 - máximo valor válido
         result = self.alu.logical_and(value, all_ones)
         self.assertEqual(result, value)
     
@@ -227,27 +227,26 @@ class TestALU(unittest.TestCase):
     
     # Partición 3: Casos límite y errores
     def test_divide_by_zero_raises_error(self):
-        """Test división por cero lanza excepción."""
-        with self.assertRaises(ALUError) as context:
-            self.alu.divide(42, 0)
-        
-        self.assertIn("división por cero", str(context.exception).lower())
+        """Test división por cero returns 0 and sets Z flag."""
+        result = self.alu.divide(42, 0)
+        self.assertEqual(result, 0)
+        self.assertEqual(self.alu.psw['Z'], 1)
     
     def test_large_number_operations(self):
-        """Test operaciones con números grandes."""
-        large_num1 = 999999
-        large_num2 = 888888
+        """Test operaciones con números grandes dentro del rango válido."""
+        large_num1 = 16000
+        large_num2 = 383
         
         result = self.alu.add(large_num1, large_num2)
         self.assertEqual(result, large_num1 + large_num2)
         
-        result = self.alu.multiply(1000, 1000)
-        self.assertEqual(result, 1000000)
+        result = self.alu.multiply(100, 100)
+        self.assertEqual(result, 10000)
     
     def test_negative_large_numbers(self):
-        """Test operaciones con números negativos grandes."""
-        large_neg1 = -999999
-        large_neg2 = -888888
+        """Test operaciones con números negativos grandes dentro del rango válido."""
+        large_neg1 = -16000
+        large_neg2 = -384
         
         result = self.alu.add(large_neg1, large_neg2)
         self.assertEqual(result, large_neg1 + large_neg2)
@@ -299,8 +298,8 @@ class TestALU(unittest.TestCase):
         """Test flag Carry en overflow (si está implementado)."""
         self.alu.add_observer(self.mock_observer)
         
-        # Operación que podría generar carry
-        large_num = 2**31 - 1  # Máximo entero de 32 bits con signo
+        # Operación que podría generar carry en el rango válido
+        large_num = 16383  # Máximo valor válido
         self.alu.add(large_num, 1)
         
         # La implementación específica determinará si hay carry

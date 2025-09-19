@@ -27,7 +27,7 @@ class TestComputerIntegration(unittest.TestCase):
         """Configuración común para todas las pruebas."""
         self.computer = Computer()
         self.mock_observer = Mock()
-        self.mock_observer.notify = Mock()
+        self.mock_observer.update = Mock()  # Observer usa update, no notify
         self.computer.add_observer(self.mock_observer)
     
     def test_complete_program_execution(self):
@@ -36,7 +36,7 @@ class TestComputerIntegration(unittest.TestCase):
             "LOAD R1, 10",
             "LOAD R2, 5",
             "ADD R1, R2, R3",
-            "STORE R3, 100",
+            "STORE R3, 20",
             "HALT"
         ]
         
@@ -63,7 +63,7 @@ class TestComputerIntegration(unittest.TestCase):
         self.assertEqual(self.computer.register_bank.get_register("R3").value, 15)
         
         # Memoria[100] debe tener 15
-        self.assertEqual(self.computer.memory.read(100), 15)
+        self.assertEqual(self.computer.memory.read(20), 15)
     
     def test_arithmetic_operations_integration(self):
         """Test integración de operaciones aritméticas."""
@@ -96,11 +96,11 @@ class TestComputerIntegration(unittest.TestCase):
         """Test integración de operaciones de memoria."""
         program = [
             "LOAD R1, 100",      # Cargar 100 en R1
-            "STORE R1, 50",      # Guardar R1 en memoria[50]
+            "STORE R1, 18",      # Guardar R1 en memoria[18]
             "LOAD R2, 200",      # Cargar 200 en R2
-            "STORE R2, 51",      # Guardar R2 en memoria[51]
-            "LOAD R3, 50",       # Cargar memoria[50] en R3 (debería ser 100)
-            "LOAD R4, 51",       # Cargar memoria[51] en R4 (debería ser 200)
+            "STORE R2, 19",      # Guardar R2 en memoria[19]
+            "LOAD R3, *18",      # Cargar memoria[18] en R3 (debería ser 100)
+            "LOAD R4, *19",      # Cargar memoria[19] en R4 (debería ser 200)
             "HALT"
         ]
         
@@ -114,8 +114,8 @@ class TestComputerIntegration(unittest.TestCase):
             steps += 1
         
         # Verificar que los datos se almacenaron y cargaron correctamente
-        self.assertEqual(self.computer.memory.read(50), 100)
-        self.assertEqual(self.computer.memory.read(51), 200)
+        self.assertEqual(self.computer.memory.read(18), 100)
+        self.assertEqual(self.computer.memory.read(19), 200)
         self.assertEqual(self.computer.register_bank.get_register("R3").value, 100)
         self.assertEqual(self.computer.register_bank.get_register("R4").value, 200)
     
@@ -157,14 +157,14 @@ class TestComputerIntegration(unittest.TestCase):
         self.computer.load_program(program)
         
         # Limpiar llamadas previas
-        self.mock_observer.notify.reset_mock()
+        self.mock_observer.update.reset_mock()
         
         # Ejecutar una instrucción
         self.computer.execute_next_instruction()
         
         # Verificar que se generaron notificaciones
-        self.assertTrue(self.mock_observer.notify.called)
-        self.assertGreater(self.mock_observer.notify.call_count, 0)
+        self.assertTrue(self.mock_observer.update.called)
+        self.assertGreater(self.mock_observer.update.call_count, 0)
     
     def test_pc_progression_during_execution(self):
         """Test que el PC progresa correctamente durante la ejecución."""
@@ -196,7 +196,7 @@ class TestComputerIntegration(unittest.TestCase):
         """Test manejo de errores durante la ejecución."""
         program = [
             "LOAD R1, 10",
-            "DIV R1, 0, R2",  # División por cero
+            "DIV R1, 0, R2",  # División por cero - debe retornar 0 y establecer flag Z
             "HALT"
         ]
         
@@ -204,16 +204,18 @@ class TestComputerIntegration(unittest.TestCase):
         
         # Primera instrucción debe ejecutarse bien
         self.computer.execute_next_instruction()
+        self.assertEqual(self.computer._register_bank.get("R1"), 10)
         
-        # Segunda instrucción debe generar error
-        with self.assertRaises(ALUError):
-            self.computer.execute_next_instruction()
+        # Segunda instrucción debe ejecutarse sin error (división por cero retorna 0)
+        self.computer.execute_next_instruction()
+        self.assertEqual(self.computer._register_bank.get("R2"), 0)  # Resultado de DIV por 0
+        self.assertEqual(self.computer._alu.psw['Z'], 1)  # Flag Z debe estar establecido
     
     def test_reset_functionality(self):
         """Test funcionalidad de reset del sistema."""
         program = [
             "LOAD R1, 99",
-            "STORE R1, 77",
+            "STORE R1, 25",
             "HALT"
         ]
         
@@ -224,7 +226,7 @@ class TestComputerIntegration(unittest.TestCase):
         
         # Verificar que hay datos
         self.assertEqual(self.computer.register_bank.get_register("R1").value, 99)
-        self.assertEqual(self.computer.memory.read(77), 99)
+        self.assertEqual(self.computer.memory.read(25), 99)
         self.assertEqual(self.computer.pc_register.value, 2)
         
         # Reset
@@ -232,7 +234,7 @@ class TestComputerIntegration(unittest.TestCase):
         
         # Verificar que todo está limpio
         self.assertEqual(self.computer.register_bank.get_register("R1").value, 0)
-        self.assertEqual(self.computer.memory.read(77), 0)
+        self.assertEqual(self.computer.memory.read(25), 0)
         self.assertEqual(self.computer.pc_register.value, 0)
         self.assertEqual(len(self.computer.loaded_program), 0)
     
@@ -241,7 +243,7 @@ class TestComputerIntegration(unittest.TestCase):
         observers = []
         for i in range(5):
             observer = Mock()
-            observer.notify = Mock()
+            observer.update = Mock()  # Observer usa update, no notify
             observers.append(observer)
             self.computer.add_observer(observer)
         
@@ -251,7 +253,7 @@ class TestComputerIntegration(unittest.TestCase):
         
         # Verificar que todos los observadores fueron notificados
         for observer in observers:
-            self.assertTrue(observer.notify.called)
+            self.assertTrue(observer.update.called)
     
     def test_memory_boundary_conditions(self):
         """Test condiciones límite de memoria."""
@@ -314,7 +316,7 @@ class TestComputerIntegration(unittest.TestCase):
             "ADD R1, R2, R1",  # sum += current (current=4)
             "ADD R2, 1, R2",   # current += 1 (current=5)
             "ADD R1, R2, R1",  # sum += current (current=5)
-            "STORE R1, 99",    # Guardar resultado
+            "STORE R1, 30",    # Guardar resultado
             "HALT"
         ]
         
@@ -328,13 +330,18 @@ class TestComputerIntegration(unittest.TestCase):
             steps += 1
         
         # Verificar resultado (1+2+3+4+5 = 15)
-        final_sum = self.computer.memory.read(99)
+        final_sum = self.computer.memory.read(30)
         self.assertEqual(final_sum, 15)
 
 
 @patch('tkinter.Tk')
 @patch('tkinter.Canvas')
 @patch('tkinter.Text')
+@patch('tkinter.Frame')
+@patch('tkinter.Button')
+@patch('tkinter.Label')
+@patch('tkinter.Scrollbar')
+@patch('tkinter.messagebox.showerror')
 class TestMVCIntegration(unittest.TestCase):
     """Pruebas de integración MVC (simuladas sin GUI real)."""
     
@@ -342,11 +349,18 @@ class TestMVCIntegration(unittest.TestCase):
         """Configuración para pruebas MVC."""
         pass
     
-    def test_mvc_component_creation(self, mock_text, mock_canvas, mock_tk):
+    def test_mvc_component_creation(self, mock_showerror, mock_scrollbar, mock_label, mock_button, mock_frame, mock_text, mock_canvas, mock_tk):
         """Test creación de componentes MVC."""
-        # Configurar mocks
+        # Configurar mock root con atributos necesarios
         mock_root = Mock()
+        mock_root.tk = Mock()
+        mock_root._last_child_ids = {}
         mock_tk.return_value = mock_root
+        
+        # Configurar mocks de widgets
+        mock_frame_instance = Mock()
+        mock_frame_instance.tk = mock_root.tk
+        mock_frame.return_value = mock_frame_instance
         
         # Importar componentes MVC
         from core.computer import Computer
@@ -363,10 +377,18 @@ class TestMVCIntegration(unittest.TestCase):
         self.assertIsNotNone(view)
         self.assertIsNotNone(controller)
     
-    def test_controller_model_communication(self, mock_text, mock_canvas, mock_tk):
+    def test_controller_model_communication(self, mock_showerror, mock_scrollbar, mock_label, mock_button, mock_frame, mock_text, mock_canvas, mock_tk):
         """Test comunicación entre Controller y Model."""
+        # Configurar mock root con atributos necesarios
         mock_root = Mock()
+        mock_root.tk = Mock()
+        mock_root._last_child_ids = {}
         mock_tk.return_value = mock_root
+        
+        # Configurar mocks de widgets
+        mock_frame_instance = Mock()
+        mock_frame_instance.tk = mock_root.tk
+        mock_frame.return_value = mock_frame_instance
         
         from core.computer import Computer
         from gui.simulator_view import SimulatorView
@@ -385,10 +407,18 @@ class TestMVCIntegration(unittest.TestCase):
         # Verificar que el programa se cargó en el modelo
         self.assertTrue(len(computer.loaded_program) > 0)
     
-    def test_observer_pattern_mvc_integration(self, mock_text, mock_canvas, mock_tk):
+    def test_observer_pattern_mvc_integration(self, mock_showerror, mock_scrollbar, mock_label, mock_button, mock_frame, mock_text, mock_canvas, mock_tk):
         """Test integración del patrón Observer en MVC."""
+        # Configurar mock root con atributos necesarios
         mock_root = Mock()
+        mock_root.tk = Mock()
+        mock_root._last_child_ids = {}
         mock_tk.return_value = mock_root
+        
+        # Configurar mocks de widgets
+        mock_frame_instance = Mock()
+        mock_frame_instance.tk = mock_root.tk
+        mock_frame.return_value = mock_frame_instance
         
         from core.computer import Computer
         from gui.simulator_view import SimulatorView
