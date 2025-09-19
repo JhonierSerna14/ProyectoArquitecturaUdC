@@ -5,12 +5,19 @@ Este módulo implementa la clase Computer que orquesta todos los
 componentes del simulador y actúa como el modelo principal.
 """
 
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, TYPE_CHECKING
 from core.observer import Observable, Observer, EventType
 from core.instruction import Instruction
 from core.exceptions import *
-from hardware import *
 from utils.instruction_parser import InstructionParser
+
+if TYPE_CHECKING:
+    from hardware.memory import Memory
+    from hardware.alu import ALU
+    from hardware.register_bank import RegisterBank
+    from hardware.register import Register
+    from hardware.control_unit import ControlUnit
+    from hardware.wired_control_unit import WiredControlUnit
 
 
 class Computer(Observable, Observer):
@@ -29,6 +36,14 @@ class Computer(Observable, Observer):
             memory_size: Tamaño de la memoria (default: 32)
         """
         super().__init__()
+        
+        # Import hardware components locally to avoid circular imports
+        from hardware.memory import Memory
+        from hardware.alu import ALU
+        from hardware.register_bank import RegisterBank
+        from hardware.register import Register
+        from hardware.control_unit import ControlUnit
+        from hardware.wired_control_unit import WiredControlUnit
         
         # Inicializar componentes de hardware
         self._memory = Memory(memory_size)
@@ -331,42 +346,42 @@ class Computer(Observable, Observer):
     
     # Propiedades de solo lectura para acceso a componentes
     @property
-    def memory(self) -> Memory:
+    def memory(self) -> 'Memory':
         """Obtiene la memoria del sistema."""
         return self._memory
     
     @property
-    def alu(self) -> ALU:
+    def alu(self) -> 'ALU':
         """Obtiene la ALU."""
         return self._alu
     
     @property
-    def register_bank(self) -> RegisterBank:
+    def register_bank(self) -> 'RegisterBank':
         """Obtiene el banco de registros."""
         return self._register_bank
     
     @property
-    def pc_register(self) -> Register:
+    def pc_register(self) -> 'Register':
         """Obtiene el registro PC."""
         return self._pc_register
     
     @property
-    def mar_register(self) -> Register:
+    def mar_register(self) -> 'Register':
         """Obtiene el registro MAR."""
         return self._mar_register
     
     @property
-    def ir_register(self) -> Register:
+    def ir_register(self) -> 'Register':
         """Obtiene el registro IR."""
         return self._ir_register
     
     @property
-    def mbr_register(self) -> Register:
+    def mbr_register(self) -> 'Register':
         """Obtiene el registro MBR."""
         return self._mbr_register
     
     @property
-    def psw_register(self) -> Register:
+    def psw_register(self) -> 'Register':
         """Obtiene el registro PSW."""
         return self._psw_register
     

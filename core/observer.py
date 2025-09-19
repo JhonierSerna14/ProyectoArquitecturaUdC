@@ -48,7 +48,12 @@ class Observable:
         
         Args:
             observer: El observador a agregar
+        
+        Raises:
+            TypeError: Si el observador es None
         """
+        if observer is None:
+            raise TypeError("Observer cannot be None")
         if observer not in self._observers:
             self._observers.append(observer)
     
@@ -71,7 +76,14 @@ class Observable:
             data: Datos adicionales sobre el evento
         """
         for observer in self._observers:
-            observer.update(self, event_type, data)
+            try:
+                observer.update(self, event_type, data)
+            except AttributeError:
+                # Re-raise AttributeError para indicar que el observer no es válido
+                raise
+            except Exception:
+                # Silenciar otras excepciones durante la ejecución del observer
+                pass
     
     def clear_observers(self) -> None:
         """Remueve todos los observadores."""

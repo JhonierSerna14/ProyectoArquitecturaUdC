@@ -6,8 +6,27 @@ instrucciones del lenguaje ensamblador del simulador.
 """
 
 from dataclasses import dataclass
-from typing import List, Optional
+from enum import Enum
+from typing import List, Optional, Union
 from core.exceptions import InvalidInstructionError
+
+
+class InstructionType(Enum):
+    """Tipos de instrucciones disponibles."""
+    LOAD = "LOAD"
+    STORE = "STORE"
+    ADD = "ADD"
+    SUB = "SUB"
+    MUL = "MUL"
+    DIV = "DIV"
+    AND = "AND"
+    OR = "OR"
+    NOT = "NOT"
+    XOR = "XOR"
+    JMP = "JMP"
+    JZ = "JZ"
+    JNZ = "JNZ"
+    HALT = "HALT"
 
 
 @dataclass
@@ -16,23 +35,41 @@ class Instruction:
     Representa una instrucción del simulador.
     
     Attributes:
-        opcode: Código de operación (ADD, SUB, LOAD, etc.)
+        type: Tipo de instrucción (InstructionType)
         operand1: Primer operando (registro o valor)
         operand2: Segundo operando (registro, valor o None)
+        operand3: Tercer operando (registro, valor o None)
         raw_instruction: Instrucción original como string
         address: Dirección de memoria donde está la instrucción
     """
-    opcode: str
+    type: Union[str, InstructionType]
     operand1: Optional[str] = None
     operand2: Optional[str] = None
+    operand3: Optional[str] = None
     raw_instruction: str = ""
     address: int = 0
     
     def __post_init__(self):
         """Validación posterior a la inicialización."""
-        if not self.opcode:
-            raise InvalidInstructionError("Opcode cannot be empty")
-        self.opcode = self.opcode.upper()
+        if not self.type:
+            raise InvalidInstructionError("Instruction type cannot be empty")
+        
+        # Handle both InstructionType enum and string
+        if isinstance(self.type, str):
+            self.type = self.type.upper()
+            # Try to convert to InstructionType
+            try:
+                self.type = InstructionType(self.type)
+            except ValueError:
+                # Keep as string if not a valid InstructionType
+                pass
+    
+    @property
+    def opcode(self) -> str:
+        """Get the opcode as string."""
+        if isinstance(self.type, InstructionType):
+            return self.type.value
+        return self.type
     
     def is_arithmetic_operation(self) -> bool:
         """Verifica si es una operación aritmética."""
@@ -62,10 +99,16 @@ class Instruction:
     
     def __str__(self) -> str:
         """Representación string de la instrucción."""
+        operands = []
+        if self.operand1:
+            operands.append(str(self.operand1))
         if self.operand2:
-            return f"{self.opcode} {self.operand1}, {self.operand2}"
-        elif self.operand1:
-            return f"{self.opcode} {self.operand1}"
+            operands.append(str(self.operand2))
+        if self.operand3:
+            operands.append(str(self.operand3))
+        
+        if operands:
+            return f"{self.opcode} {', '.join(operands)}"
         else:
             return self.opcode
 
