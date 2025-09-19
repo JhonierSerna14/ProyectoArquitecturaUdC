@@ -1,4 +1,4 @@
-# Simulador de Computadora - Universidad de Córdoba
+# Simulador de Computadora - Universidad de Caldas
 
 Un simulador educativo de arquitectura de computadora con interfaz gráfica desarrollado en Python usando Tkinter. Este proyecto implementa los componentes fundamentales de una computadora y permite visualizar el ciclo de ejecución de instrucciones.
 
@@ -150,23 +150,6 @@ Este simulador está diseñado para:
 - Entender la interacción entre componentes de hardware
 - Practicar programación en lenguaje ensamblador básico
 
-## 👥 Contribución
-
-Las contribuciones son bienvenidas. Por favor:
-1. Haz fork del proyecto
-2. Crea una rama para tu característica (`git checkout -b feature/AmazingFeature`)
-3. Confirma tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Haz push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
-
 ## 📄 Licencia
 
-Este proyecto es de uso educativo para la Universidad de Córdoba.
-
-## ✨ Créditos
-
-Proyecto desarrollado como parte del curso de Arquitectura de Computadores en la Universidad de Córdoba.
-
----
-
-**Universidad de Córdoba** - Programa de Ingeniería de Sistemas
+Este proyecto es de uso educativo para la Universidad de Caldas.

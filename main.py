@@ -1,23 +1,31 @@
 """
 Simulador de Computadora - Proyecto Final Arquitectura de Computadores
 
-Este módulo principal inicializa y ejecuta el simulador de computadora con interfaz gráfica.
-El simulador implementa los componentes básicos de una arquitectura de computadora:
+Este módulo principal inicializa y ejecuta el simulador de computadora con interfaz gráfica
+usando arquitectura MVC. El simulador implementa los componentes básicos de una arquitectura 
+de computadora:
 - ALU (Unidad Aritmético-Lógica)
 - Unidad de Control
 - Memoria (instrucciones y datos)
 - Banco de Registros
 - Registros especiales (PC, MAR, IR, MBR, PSW)
 
-Autor: Proyecto Universidad de Córdoba
-Versión: 1.0
+Arquitectura: MVC (Model-View-Controller) + Observer Pattern
+
+Autor: Proyecto Universidad de Caldas
+Versión: 2.0 - Refactorizada con MVC
 """
 
 import tkinter as tk
 import sys
 import os
 
-from Class.ComputerSimulator import ComputerSimulator
+# Agregar el directorio raíz al path para imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from core.computer import Computer
+from gui.simulator_view import SimulatorView
+from gui.simulator_controller import SimulatorController
 
 
 def configure_tcl_tk_libraries():
@@ -54,25 +62,64 @@ def configure_tcl_tk_libraries():
 
 def main():
     """
-    Función principal que inicializa y ejecuta el simulador de computadora.
+    Función principal que inicializa y ejecuta el simulador usando arquitectura MVC.
     
-    Configura la ventana principal de Tkinter y crea una instancia del
-    simulador de computadora con las dimensiones apropiadas.
+    Crea los componentes del patrón MVC (Model-View-Controller) y 
+    configura la comunicación entre ellos usando el patrón Observer.
     """
     # Configurar librerías Tcl/Tk si es necesario
     configure_tcl_tk_libraries()
     
-    # Crear y configurar la ventana principal
-    root = tk.Tk()
-    root.geometry("1300x750")
-    root.title("Simulador de Computadora - UdC")
+    try:
+        # Crear la ventana principal
+        root = tk.Tk()
+        root.title("Simulador de Computadora - UdC (MVC)")
+        root.geometry("1300x750")
+        
+        # Configurar el cierre de la aplicación
+        def on_closing():
+            try:
+                controller.cleanup()
+            except:
+                pass
+            root.destroy()
+        
+        root.protocol("WM_DELETE_WINDOW", on_closing)
+        
+        # Crear componentes MVC
+        print("Inicializando simulador con arquitectura MVC...")
+        
+        # Modelo: Computer
+        computer = Computer()
+        print("✓ Modelo (Computer) creado")
+        
+        # Vista: SimulatorView
+        view = SimulatorView(root)
+        print("✓ Vista (SimulatorView) creada")
+        
+        # Controlador: SimulatorController
+        controller = SimulatorController(view, computer)
+        print("✓ Controlador (SimulatorController) creado")
+        
+        print("\n=== Simulador de Computadora ===")
+        print("Arquitectura: MVC + Observer Pattern")
+        print("Estado: Listo para usar")
+        print("=====================================\n")
+        
+        # Ejecutar la aplicación
+        root.mainloop()
+        
+    except ImportError as e:
+        print(f"Error de importación: {e}")
+        print("Asegúrese de que todos los módulos están disponibles")
+        return 1
+    except Exception as e:
+        print(f"Error inesperado: {e}")
+        return 1
     
-    # Inicializar el simulador
-    app = ComputerSimulator(root)
-    
-    # Iniciar el bucle principal de la interfaz gráfica
-    root.mainloop()
+    return 0
 
 
 if __name__ == '__main__':
-    main()
+    exit_code = main()
+    sys.exit(exit_code)
