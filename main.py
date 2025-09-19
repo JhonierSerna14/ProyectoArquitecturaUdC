@@ -4,16 +4,24 @@ Simulador de Computadora - Proyecto Final Arquitectura de Computadores
 Este módulo principal inicializa y ejecuta el simulador de computadora con interfaz gráfica
 usando arquitectura MVC. El simulador implementa los componentes básicos de una arquitectura 
 de computadora:
-- ALU (Unidad Aritmético-Lógica)
-- Unidad de Control
-- Memoria (instrucciones y datos)
-- Banco de Registros
+- ALU (Unidad Aritmético-Lógica) con operaciones de 3 operandos
+- Unidad de Control con soporte para instrucciones complejas  
+- Memoria de 32 bits (16 instrucciones + 16 datos)
+- Banco de Registros (R1-R9)
 - Registros especiales (PC, MAR, IR, MBR, PSW)
+
+CARACTERÍSTICAS PRINCIPALES:
+✅ Instrucciones de 3 operandos: ADD R1, R2, R3 (src1, src2, dest)
+✅ Carga inmediata vs memoria: LOAD R1, 10 vs LOAD R1, *18
+✅ División por cero segura (retorna 0, establece flag Z)
+✅ Sintaxis mejorada para NOT: NOT R1, R2 (fuente, destino)
+✅ Direccionamiento indirecto: *R1 y *dirección
+✅ Patrón Observer para comunicación entre componentes
 
 Arquitectura: MVC (Model-View-Controller) + Observer Pattern
 
 Autor: Proyecto Universidad de Caldas
-Versión: 2.0 - Refactorizada con MVC
+Versión: 3.0 - Instrucciones 3-operandos + Memoria 32-bits
 """
 
 import tkinter as tk
