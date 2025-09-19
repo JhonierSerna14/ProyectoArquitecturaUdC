@@ -1,8 +1,30 @@
-# Guía de Testing para el Simulador de Computadora
+# Guía de Testing para el Simulador de Computadora v3.0
 
 ## Visión General
 
-Este documento describe la estrategia de testing implementada para el simulador de computadora con arquitectura MVC. Se utilizan técnicas avanzadas de testing incluyendo **partición equivalente**, **análisis de cobertura** y **pruebas de integración**.
+Este documento describe la estrategia de testing implementada para el simulador de computadora con arquitectura MVC y las nuevas características de la versión 3.0. Se utilizan técnicas avanzadas de testing incluyendo **partición equivalente**, **análisis de cobertura** y **pruebas de integración**.
+
+## ✨ Nuevas Características Testeadas (v3.0)
+
+### 🔢 Instrucciones de 3 Operandos
+- **Cobertura**: Todas las operaciones aritméticas (ADD, SUB, MUL, DIV)
+- **Casos**: Operaciones válidas, casos límite, validación de sintaxis
+- **Ejemplo**: `ADD R1, R2, R3` donde R3 = R1 + R2
+
+### 💾 Memoria de 32 Bits
+- **Cobertura**: Direcciones válidas (16-31), direcciones inválidas
+- **Validación**: Separación entre área de instrucciones (0-15) y datos (16-31)
+- **Casos edge**: Límites de memoria, desbordamientos
+
+### 📥 Sintaxis LOAD Avanzada
+- **Cobertura**: `LOAD R1, *18` (directo), `LOAD R1, *R2` (indirecto)
+- **Validación**: Parser reconoce diferencias entre inmediato y memoria
+- **Casos**: Direcciones válidas e inválidas
+
+### ➗ División por Cero Segura
+- **Comportamiento**: Retorna 0, establece flag Z=1
+- **Cobertura**: Casos normales, división por cero, flags PSW
+- **Validación**: No lanza excepción, comportamiento predecible
 
 ## Estructura de Testing
 
