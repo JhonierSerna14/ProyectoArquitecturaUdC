@@ -163,6 +163,21 @@ class Memory(Observable):
         
         return data_register
     
+    def read(self, address: int) -> int:
+        """
+        Lee el valor desde una dirección de memoria de datos.
+        
+        Args:
+            address: Dirección de memoria
+            
+        Returns:
+            Valor almacenado en la dirección
+            
+        Raises:
+            InvalidMemoryAddressError: Si la dirección es inválida
+        """
+        return self.load_data(address).value
+    
     def store_data(self, address: int, value: Any) -> None:
         """
         Almacena un dato en la memoria.
