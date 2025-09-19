@@ -92,12 +92,12 @@ class ALU(Observable):
     def _validate_operands(self, operand1: int, operand2: int = None) -> None:
         """Valida que los operandos estén en el rango válido."""
         def is_valid_operand(operand):
-            # Permitir rango amplio incluyendo valores unsigned de 32 bits
-            return operand is None or (-2**31 <= operand <= 2**32 - 1)
+            # Rango válido: [-16384, 16383] (16-bit signed integer range)
+            return operand is None or (-16384 <= operand <= 16383)
 
         if not is_valid_operand(operand1) or not is_valid_operand(operand2):
             self._psw['O'] = 1
-            raise OperandOutOfRangeError(f'Operands out of range [{-2**31}, {2**32 - 1}]')
+            raise OperandOutOfRangeError(f'Operands out of range [-16384, 16383]')
     
     def _reset_flags(self) -> None:
         """Resetea todos los flags del PSW."""
@@ -124,7 +124,9 @@ class ALU(Observable):
             
         elif opcode == 'DIV':
             if operand2 == 0:
-                raise ALUOperationError("División por cero")
+                # División por cero: retornar 0 y establecer flag Z
+                self._value = 0
+                self._psw['Z'] = 1
             else:
                 self._value = operand1 // operand2
                 
